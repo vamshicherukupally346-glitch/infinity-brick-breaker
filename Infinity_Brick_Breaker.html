@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Infinity Brick Breaker</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+}
+
+
+canvas{
+
+    background:black;
+    border:3px solid white;
+    margin-top:10px;
+
+}
+
+
+button{
+
+    padding:12px 25px;
+    font-size:20px;
+    cursor:pointer;
+    border-radius:10px;
+
+}
+
+
+.mobile button{
+
+    width:90px;
+    height:50px;
+    font-size:25px;
+    background:#00ffff;
+
+}
+
+
+#gameOver{
+
+    display:none;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>🧱 Infinity Brick Breaker</h1>
+
+
+<canvas id="game" width="800" height="500"></canvas>
+
+
+<h3 id="status"></h3>
+
+
+
+<div id="gameOver">
+
+<h1 style="color:red">
+GAME OVER
+</h1>
+
+
+<h2 id="result"></h2>
+
+
+<button onclick="restartGame()">
+PLAY AGAIN
+</button>
+
+
+</div>
+
+
+
+
+<div class="mobile">
+
+<br>
+
+<button id="left">
+⬅
+</button>
+
+<button id="right">
+➡
+</button>
+
+
+</div>
+
+
+
+<script>
+
+
+const canvas=document.getElementById("game");
+
+const ctx=canvas.getContext("2d");
+
+
+
+let score;
+
+let highScore;
+
+let level;
+
+let lives;
+
+let running;
+
+
+
+let paddle;
+
+let balls=[];
+
+let bricks=[];
+
+let powerUps=[];
+
+
+
+highScore=
+localStorage.getItem("highScore") || 0;
+
+
+
+
+
+function startGame(){
+
+
+score=0;
+
+level=1;
+
+lives=3;
+
+running=true;
+
+
+
+paddle={
+
+x:340,
+
+y:460,
+
+width:120,
+
+height:15,
+
+speed:8
+
+};
+
+
+
+balls=[{
+
+x:400,
+
+y:300,
+
+dx:3,
+
+dy:-3,
+
+size:10,
+
+fire:false
+
+}];
+
+
+powerUps=[];
+
+
+createLevel();
+
+
+document.getElementById("gameOver").style.display="none";
+
+
+}
+
+
+
+
+
+function createLevel(){
+
+
+bricks=[];
+
+
+
+// Boss levels
+
+if(
+level==10 ||
+level==25 ||
+level==50 ||
+level==100
+){
+
+
+bricks.push({
+
+x:250,
+
+y:70,
+
+w:300,
+
+h:45,
+
+alive:true,
+
+hp:Math.floor(level/2),
+
+boss:true,
+
+color:"red"
+
+});
+
+
+}
+
+
+
+
+let rows=4+Math.floor(level/10);
+
+
+if(rows>10)
+rows=10;
+
+
+
+
+for(let r=0;r<rows;r++){
+
+
+for(let c=0;c<10;c++){
+
+
+bricks.push({
+
+
+x:50+c*70,
+
+y:150+r*25,
+
+w:60,
+
+h:18,
+
+alive:true,
+
+hp:1,
+
+boss:false,
+
+color:
+`hsl(${Math.random()*360},80%,50%)`
+
+
+});
+
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+let keys={};
+
+
+
+document.addEventListener(
+"keydown",
+function(e){
+
+keys[e.key]=true;
+
+});
+
+
+
+document.addEventListener(
+"keyup",
+function(e){
+
+keys[e.key]=false;
+
+});
+
+
+
+document.getElementById("left").ontouchstart=function(){
+
+paddle.x-=40;
+
+};
+
+
+
+document.getElementById("right").ontouchstart=function(){
+
+paddle.x+=40;
+
+};
+// ===============================
+// DRAW FUNCTIONS
+// ===============================
+
+
+function drawPaddle(){
+
+ctx.fillStyle="cyan";
+
+ctx.fillRect(
+paddle.x,
+paddle.y,
+paddle.width,
+paddle.height
+);
+
+}
+
+
+
+
+function drawBalls(){
+
+balls.forEach(ball=>{
+
+
+ctx.beginPath();
+
+
+ctx.arc(
+ball.x,
+ball.y,
+ball.size,
+0,
+Math.PI*2
+);
+
+
+
+ctx.fillStyle=
+ball.fire ? "orange":"yellow";
+
+
+ctx.fill();
+
+
+ctx.closePath();
+
+
+});
+
+}
+
+
+
+
+function drawBricks(){
+
+bricks.forEach(brick=>{
+
+
+if(brick.alive){
+
+
+ctx.fillStyle=brick.color;
+
+
+ctx.fillRect(
+
+brick.x,
+brick.y,
+brick.w,
+brick.h
+
+);
+
+
+
+if(brick.boss){
+
+
+ctx.fillStyle="white";
+
+ctx.font="15px Arial";
+
+ctx.fillText(
+
+"Boss HP: "+brick.hp,
+
+brick.x+80,
+
+brick.y+30
+
+);
+
+
+}
+
+
+
+}
+
+
+
+});
+
+}
+
+
+
+
+function drawPowerUps(){
+
+
+powerUps.forEach(power=>{
+
+
+ctx.fillStyle=power.color;
+
+
+ctx.fillRect(
+
+power.x,
+power.y,
+20,
+20
+
+);
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// GAME UPDATE
+// ===============================
+
+
+function update(){
+
+
+if(!running)
+return;
+
+
+
+
+// Paddle
+
+
+if(keys["ArrowLeft"]){
+
+paddle.x-=paddle.speed;
+
+}
+
+
+
+if(keys["ArrowRight"]){
+
+paddle.x+=paddle.speed;
+
+}
+
+
+
+if(paddle.x<0)
+
+paddle.x=0;
+
+
+
+if(paddle.x+paddle.width>canvas.width)
+
+paddle.x=canvas.width-paddle.width;
+
+
+
+
+
+
+// Balls movement
+
+
+balls.forEach(ball=>{
+
+
+ball.x+=ball.dx;
+
+ball.y+=ball.dy;
+
+
+
+
+
+// Wall collision
+
+
+if(
+ball.x<0 ||
+ball.x>canvas.width
+){
+
+ball.dx=-ball.dx;
+
+}
+
+
+
+if(ball.y<0){
+
+ball.dy=-ball.dy;
+
+}
+
+
+
+
+
+
+// Paddle collision
+
+
+if(
+
+ball.y+ball.size>=paddle.y &&
+
+ball.x>=paddle.x &&
+
+ball.x<=paddle.x+paddle.width
+
+){
+
+
+ball.dy=-ball.dy;
+
+
+}
+
+
+
+
+
+
+// Brick collision
+
+
+bricks.forEach(brick=>{
+
+
+if(
+
+brick.alive &&
+
+ball.x>brick.x &&
+
+ball.x<brick.x+brick.w &&
+
+ball.y>brick.y &&
+
+ball.y<brick.y+brick.h
+
+){
+
+
+
+brick.hp--;
+
+
+
+if(brick.hp<=0){
+
+
+brick.alive=false;
+
+
+score+=brick.boss ? 500:10;
+
+
+
+
+// power chance
+
+if(Math.random()<0.15){
+
+
+createPower(
+
+brick.x,
+
+brick.y
+
+);
+
+
+}
+
+
+
+}
+
+
+
+ball.dy=-ball.dy;
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+});
+
+
+
+
+
+// Remove balls
+
+
+balls=
+
+balls.filter(ball=>ball.y<520);
+
+
+
+
+
+// Life lost
+
+
+if(balls.length==0){
+
+
+lives--;
+
+
+
+if(lives<=0){
+
+
+endGame();
+
+
+}
+
+else{
+
+
+balls=[{
+
+x:400,
+
+y:300,
+
+dx:3,
+
+dy:-3,
+
+size:10,
+
+fire:false
+
+}];
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+// Power movement
+
+
+powerUps.forEach((power,index)=>{
+
+
+power.y+=3;
+
+
+
+
+if(
+
+power.y>440 &&
+
+power.x>paddle.x &&
+
+power.x<paddle.x+paddle.width
+
+){
+
+
+
+usePower(power.type);
+
+
+
+powerUps.splice(index,1);
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+// Check level complete
+
+
+let remaining=
+
+bricks.filter(b=>b.alive).length;
+
+
+
+if(remaining==0){
+
+
+nextLevel();
+
+
+}
+
+
+
+}
+
+
+
+
+
+// ===============================
+// POWER UPS
+// ===============================
+
+
+
+function createPower(x,y){
+
+
+
+let type;
+
+
+
+let random=Math.random();
+
+
+
+if(random<0.5)
+
+type="big";
+
+
+else
+
+type="multi";
+
+
+
+
+powerUps.push({
+
+
+x:x,
+
+y:y,
+
+type:type,
+
+color:type=="big"?"lime":"magenta"
+
+
+});
+
+
+
+}
+
+
+
+
+
+function usePower(type){
+
+
+
+if(type=="big"){
+
+
+paddle.width=220;
+
+
+
+setTimeout(function(){
+
+
+paddle.width=120;
+
+
+},10000);
+
+
+
+}
+
+
+
+
+if(type=="multi"){
+
+
+
+let extra=[];
+
+
+
+balls.forEach(ball=>{
+
+
+extra.push({
+
+
+x:ball.x,
+
+y:ball.y,
+
+dx:-ball.dx,
+
+dy:ball.dy,
+
+size:10,
+
+fire:false
+
+
+});
+
+
+
+});
+
+
+
+balls.push(...extra);
+
+
+
+}
+
+
+
+}
+// ===============================
+// LEVEL SYSTEM
+// ===============================
+
+
+function nextLevel(){
+
+
+if(level>=100){
+
+
+running=false;
+
+
+document.getElementById("gameOver").style.display="block";
+
+
+document.getElementById("result").innerHTML=
+
+"🏆 YOU COMPLETED ALL 100 LEVELS!<br>"+
+"Final Score: "+score;
+
+
+saveScore();
+
+
+return;
+
+
+}
+
+
+
+
+level++;
+
+
+
+// Increase difficulty
+
+balls.forEach(function(ball){
+
+
+ball.dx*=1.03;
+
+ball.dy*=1.03;
+
+
+});
+
+
+
+createLevel();
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// GAME OVER
+// ===============================
+
+
+function endGame(){
+
+
+running=false;
+
+
+
+saveScore();
+
+
+
+document.getElementById("gameOver").style.display="block";
+
+
+
+document.getElementById("result").innerHTML=
+
+"Score: "+score+
+"<br>High Score: "+highScore;
+
+
+}
+
+
+
+
+
+function saveScore(){
+
+
+if(score>highScore){
+
+
+highScore=score;
+
+
+localStorage.setItem(
+"highScore",
+highScore
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// RESTART
+// ===============================
+
+
+function restartGame(){
+
+
+startGame();
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// DRAW INFORMATION
+// ===============================
+
+
+function drawInfo(){
+
+
+document.getElementById("status").innerHTML=
+
+"Score: "+score+
+" | Level: "+level+
+"/100"+
+" | Lives: "+lives+
+" | High Score: "+highScore;
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// MAIN GAME LOOP
+// ===============================
+
+
+function gameLoop(){
+
+
+ctx.clearRect(
+
+0,
+0,
+canvas.width,
+canvas.height
+
+);
+
+
+
+drawPaddle();
+
+
+drawBalls();
+
+
+drawBricks();
+
+
+drawPowerUps();
+
+
+drawInfo();
+
+
+
+update();
+
+
+
+requestAnimationFrame(gameLoop);
+
+
+
+}
+
+
+
+
+
+// START GAME
+
+
+startGame();
+
+
+gameLoop();
+
+
+</script>
+
+
+</body>
+
+
+</html>
