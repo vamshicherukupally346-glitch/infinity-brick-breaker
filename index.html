@@ -5,7 +5,7 @@
 
 <title>Infinity Brick Breaker</title>
 
-<style>
+<link rel="stylesheet" href="style.css">
 
 body{
     margin:0;
@@ -14,8 +14,26 @@ body{
     text-align:center;
     font-family:Arial;
 }
+<div id="mainMenu">
 
+<h1>🧱 Infinity Brick Breaker</h1>
 
+<button onclick="showGame()">▶ PLAY</button>
+
+<br><br>
+
+<button onclick="showLevels()">🗺 LEVEL MAP</button>
+
+<br><br>
+
+<button onclick="showSettings()">⚙ SETTINGS</button>
+
+<br><br>
+
+<button onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+
+</div>
+<canvas id="game" width="800" height="500" style="display:none;"></canvas>
 canvas{
 
     background:black;
@@ -46,13 +64,23 @@ button{
 
 
 #gameOver{
+<div id="levelMap" style="display:none;">
 
+<h1>🗺 LEVEL MAP</h1>
+
+<div id="levels"></div>
+
+<br>
+
+<button onclick="backHome()">HOME</button>
+
+</div>
     display:none;
 
 }
 
 
-</style>
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -86,8 +114,87 @@ PLAY AGAIN
 
 
 </div>
+<div id="levelMap" style="display:none;">
+
+<h1>🗺 LEVEL MAP</h1>
+
+<div id="levels">
+
+<!-- Levels will appear here -->
+
+</div>
+
+<br>
+
+<button onclick="backHome()">
+HOME
+</button>
+
+</div>
+<div id="settings" style="display:none;">
+
+<h1>⚙ SETTINGS</h1>
+
+<h3>User Name</h3>
+
+<input id="username" placeholder="Enter Name">
 
 
+<h3>Ball Color</h3>
+
+<select id="ballColor">
+
+<option value="yellow">Yellow</option>
+<option value="red">Red</option>
+<option value="blue">Blue</option>
+<option value="lime">Green</option>
+
+</select>
+
+
+<h3>Paddle Color</h3>
+
+<select id="paddleColor">
+
+<option value="cyan">Cyan</option>
+<option value="red">Red</option>
+<option value="white">White</option>
+<option value="lime">Green</option>
+
+</select>
+
+
+<br><br>
+
+<label>
+<input type="checkbox" id="music">
+Music
+</label>
+
+
+<br>
+
+
+<label>
+<input type="checkbox" id="sounds">
+Sound Effects
+</label>
+
+
+<br><br>
+
+
+<button onclick="saveSettings()">
+SAVE
+</button>
+
+
+<button onclick="backHome()">
+BACK
+</button>
+
+
+</div>
 
 
 <div class="mobile">
@@ -1138,14 +1245,147 @@ requestAnimationFrame(gameLoop);
 // START GAME
 
 
-startGame();
 
 
 gameLoop();
 
+function showGame(){
 
+    document.getElementById("mainMenu").style.display="none";
+
+    canvas.style.display="block";
+
+    startGame();
+
+}
+
+
+
+function showLevels(){
+
+    document.getElementById("mainMenu").style.display="none";
+
+    document.getElementById("levelMap").style.display="block";
+
+}
+
+
+
+function showSettings(){
+
+    document.getElementById("mainMenu").style.display="none";
+
+    document.getElementById("settings").style.display="block";
+
+}
+
+
+
+function backHome(){
+
+    document.getElementById("mainMenu").style.display="block";
+
+    document.getElementById("levelMap").style.display="none";
+
+    document.getElementById("settings").style.display="none";
+
+    canvas.style.display="none";
+
+}
+
+
+
+function toggleFullscreen(){
+
+    if(!document.fullscreenElement){
+
+        document.documentElement.requestFullscreen();
+
+    }
+    else{
+
+        document.exitFullscreen();
+
+    }
+
+}
+    function showLevels(){
+
+    document.getElementById("mainMenu").style.display="none";
+
+    document.getElementById("levelMap").style.display="block";
+
+    createLevelMap();
+
+}
+
+
+
+function createLevelMap(){
+
+    let levelBox=document.getElementById("levels");
+
+    levelBox.innerHTML="";
+
+
+    let unlocked =
+    Number(localStorage.getItem("unlockedLevel")) || 1;
+
+
+    for(let i=1;i<=100;i++){
+
+
+        let button=document.createElement("button");
+
+
+        button.innerHTML=i;
+
+
+        button.style.margin="5px";
+
+        button.style.width="45px";
+
+        button.style.height="45px";
+
+
+
+        if(i<=unlocked){
+
+
+            button.style.background="lime";
+
+
+            button.onclick=function(){
+
+                level=i;
+
+                backHome();
+
+                showGame();
+
+            };
+
+
+        }
+        else{
+
+
+            button.innerHTML="🔒";
+
+            button.disabled=true;
+
+            button.style.background="gray";
+
+        }
+
+
+        levelBox.appendChild(button);
+
+
+    }
+
+}
 </script>
-
 
 </body>
 
