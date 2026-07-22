@@ -1,0 +1,31 @@
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+}
+
+canvas{
+    background:black;
+    border:3px solid white;
+    margin-top:10px;
+}
+
+button{
+    padding:12px 25px;
+    font-size:20px;
+    cursor:pointer;
+    border-radius:10px;
+}
+
+.mobile button{
+    width:90px;
+    height:50px;
+    font-size:25px;
+    background:#00ffff;
+}
+
+#gameOver{
+    display:none;
+}
