@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Infinity Brick Breaker</title>
+<title>🧱 Infinity Brick Breaker</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -13,45 +13,32 @@
 <body>
 
 
+<!-- HOME MENU -->
+
 <div id="mainMenu">
 
 <h1>🧱 Infinity Brick Breaker</h1>
 
-<button onclick="showGame()">▶ PLAY</button>
+<button onclick="showGame()">
+▶ PLAY
+</button>
 
 <br><br>
 
-<button onclick="showLevels()">🗺 LEVEL MAP</button>
+<button onclick="showLevels()">
+🗺 LEVEL MAP
+</button>
 
 <br><br>
 
-<button onclick="showSettings()">⚙ SETTINGS</button>
+<button onclick="showSettings()">
+⚙ SETTINGS
+</button>
 
 <br><br>
 
-<button onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
-
-</div>
-
-
-
-<canvas id="game" width="800" height="500" style="display:none;"></canvas>
-
-
-<h3 id="status"></h3>
-
-
-
-<div id="levelMap" style="display:none;">
-
-<h1>🗺 LEVEL MAP</h1>
-
-<div id="levels"></div>
-
-<br>
-
-<button onclick="backHome()">
-HOME
+<button onclick="toggleFullscreen()">
+⛶ FULLSCREEN
 </button>
 
 </div>
@@ -60,9 +47,58 @@ HOME
 
 
 
-<div id="settings" style="display:none;">
+<!-- GAME AREA -->
+
+
+<canvas id="game" width="800" height="500"></canvas>
+
+
+<h3 id="status"></h3>
+
+
+
+
+
+
+<!-- LEVEL MAP -->
+
+
+<div id="levelMap">
+
+
+<h1>🗺 LEVEL MAP</h1>
+
+
+<div id="levels"></div>
+
+
+<br>
+
+
+<button onclick="backHome()">
+
+HOME
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- SETTINGS -->
+
+
+<div id="settings">
+
 
 <h1>⚙ SETTINGS</h1>
+
 
 
 <h3>User Name</h3>
@@ -70,59 +106,116 @@ HOME
 <input id="username" placeholder="Enter Name">
 
 
+
+
+
 <h3>Ball Color</h3>
+
 
 <select id="ballColor">
 
-<option value="yellow">Yellow</option>
-<option value="red">Red</option>
-<option value="blue">Blue</option>
-<option value="lime">Green</option>
+<option value="yellow">
+Yellow
+</option>
+
+
+<option value="red">
+Red
+</option>
+
+
+<option value="blue">
+Blue
+</option>
+
+
+<option value="lime">
+Green
+</option>
+
 
 </select>
+
+
+
+
 
 
 
 <h3>Paddle Color</h3>
 
+
 <select id="paddleColor">
 
-<option value="cyan">Cyan</option>
-<option value="red">Red</option>
-<option value="white">White</option>
-<option value="lime">Green</option>
+
+<option value="cyan">
+Cyan
+</option>
+
+
+<option value="red">
+Red
+</option>
+
+
+<option value="white">
+White
+</option>
+
+
+<option value="lime">
+Green
+</option>
+
 
 </select>
+
+
 
 
 <br><br>
 
 
 <label>
-<input type="checkbox" id="music">
-Music
+
+<input id="music" type="checkbox">
+
+Background Music
+
 </label>
+
 
 
 <br>
 
 
+
 <label>
-<input type="checkbox" id="sounds">
+
+<input id="sounds" type="checkbox">
+
 Sound Effects
+
 </label>
+
 
 
 <br><br>
 
 
+
 <button onclick="saveSettings()">
+
 SAVE
+
 </button>
 
 
+
 <button onclick="backHome()">
+
 BACK
+
 </button>
 
 
@@ -132,9 +225,16 @@ BACK
 
 
 
+
+
+
+<!-- GAME OVER -->
+
+
 <div id="gameOver">
 
-<h1 style="color:red">
+
+<h1>
 GAME OVER
 </h1>
 
@@ -142,27 +242,41 @@ GAME OVER
 <h2 id="result"></h2>
 
 
+
 <button onclick="restartGame()">
+
 PLAY AGAIN
+
 </button>
+
 
 
 </div>
 
 
+
+
+
+
+
+
+<!-- MOBILE CONTROL -->
 
 
 <div class="mobile">
 
-<br>
 
 <button id="left">
+
 ⬅
+
 </button>
 
 
 <button id="right">
+
 ➡
+
 </button>
 
 
@@ -170,877 +284,12 @@ PLAY AGAIN
 
 
 
-<script>
 
 
-const canvas=document.getElementById("game");
 
-const ctx=canvas.getContext("2d");
-let score=0;
-let highScore=localStorage.getItem("highScore") || 0;
-let level=1;
-let lives=3;
-let running=false;
+<script src="game.js"></script>
 
-let paddle;
-let balls=[];
-let bricks=[];
-let powerUps=[];
 
-let keys={};
+</body>
 
-let ballColor="yellow";
-let paddleColor="cyan";
-
-
-
-function startGame(){
-
-score=0;
-lives=3;
-running=true;
-
-paddle={
-x:340,
-y:460,
-width:120,
-height:15,
-speed:8
-};
-
-
-balls=[{
-
-x:400,
-y:300,
-dx:3,
-dy:-3,
-size:10
-
-}];
-
-
-createLevel();
-
-
-document.getElementById("gameOver").style.display="none";
-
-}
-
-
-
-
-function createLevel(){
-
-bricks=[];
-
-
-let rows=4+Math.floor(level/10);
-
-if(rows>10)
-rows=10;
-
-
-for(let r=0;r<rows;r++){
-
-for(let c=0;c<10;c++){
-
-bricks.push({
-
-x:50+c*70,
-y:80+r*25,
-w:60,
-h:18,
-alive:true,
-color:`hsl(${Math.random()*360},80%,50%)`
-
-});
-
-}
-
-}
-
-}
-
-
-
-
-function drawPaddle(){
-
-ctx.fillStyle=paddleColor;
-
-ctx.fillRect(
-paddle.x,
-paddle.y,
-paddle.width,
-paddle.height
-);
-
-}
-
-
-
-function drawBalls(){
-
-balls.forEach(ball=>{
-
-ctx.beginPath();
-
-ctx.arc(
-ball.x,
-ball.y,
-ball.size,
-0,
-Math.PI*2
-);
-
-ctx.fillStyle=ballColor;
-
-ctx.fill();
-
-});
-
-}
-
-
-
-function drawBricks(){
-
-bricks.forEach(brick=>{
-
-if(brick.alive){
-
-ctx.fillStyle=brick.color;
-
-ctx.fillRect(
-brick.x,
-brick.y,
-brick.w,
-brick.h
-);
-
-}
-
-});
-
-}
-
-
-
-function update(){
-
-
-if(!running)
-return;
-
-
-
-if(keys["ArrowLeft"])
-paddle.x-=paddle.speed;
-
-
-if(keys["ArrowRight"])
-paddle.x+=paddle.speed;
-
-
-
-if(paddle.x<0)
-paddle.x=0;
-
-
-if(paddle.x+paddle.width>canvas.width)
-paddle.x=canvas.width-paddle.width;
-
-
-
-balls.forEach(ball=>{
-
-
-ball.x+=ball.dx;
-ball.y+=ball.dy;
-
-
-
-if(ball.x<0 || ball.x>canvas.width)
-ball.dx=-ball.dx;
-
-
-if(ball.y<0)
-ball.dy=-ball.dy;
-
-
-
-if(
-ball.y+ball.size>=paddle.y &&
-ball.x>paddle.x &&
-ball.x<paddle.x+paddle.width
-){
-
-ball.dy=-ball.dy;
-
-}
-
-
-
-
-bricks.forEach(brick=>{
-
-
-if(
-
-brick.alive &&
-
-ball.x>brick.x &&
-ball.x<brick.x+brick.w &&
-ball.y>brick.y &&
-ball.y<brick.y+brick.h
-
-){
-
-brick.alive=false;
-
-score+=10;
-
-ball.dy=-ball.dy;
-
-}
-
-
-});
-
-
-});
-
-
-
-balls=balls.filter(ball=>ball.y<520);
-
-
-
-if(balls.length==0){
-
-lives--;
-
-
-if(lives<=0){
-
-endGame();
-
-}
-
-else{
-
-balls=[{
-
-x:400,
-y:300,
-dx:3,
-dy:-3,
-size:10
-
-}];
-
-}
-
-}
-
-
-
-let remaining=bricks.filter(b=>b.alive).length;
-
-
-if(remaining==0){
-
-nextLevel();
-
-}
-
-
-}
-
-
-
-
-function nextLevel(){
-
-level++;
-
-createLevel();
-
-}
-
-
-
-
-function endGame(){
-
-running=false;
-
-
-document.getElementById("gameOver").style.display="block";
-
-
-document.getElementById("result").innerHTML=
-
-"Score: "+score+
-"<br>High Score: "+highScore;
-
-
-if(score>highScore){
-
-highScore=score;
-
-localStorage.setItem(
-"highScore",
-highScore
-);
-
-}
-
-}
-
-
-
-
-function restartGame(){
-
-level=1;
-
-startGame();
-
-}
-
-
-
-
-function drawInfo(){
-
-document.getElementById("status").innerHTML=
-
-"Score: "+score+
-" | Level: "+level+
-" | Lives: "+lives+
-" | High Score: "+highScore;
-
-}
-
-
-
-
-function gameLoop(){
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-
-drawPaddle();
-
-drawBalls();
-
-drawBricks();
-
-drawInfo();
-
-
-update();
-
-
-requestAnimationFrame(gameLoop);
-
-}
-
-
-
-
-document.addEventListener(
-"keydown",
-function(e){
-
-keys[e.key]=true;
-
-});
-
-
-document.addEventListener(
-"keyup",
-function(e){
-
-keys[e.key]=false;
-
-});
-
-
-
-document.getElementById("left").ontouchstart=function(){
-
-paddle.x-=40;
-
-};
-
-
-document.getElementById("right").ontouchstart=function(){
-
-paddle.x+=40;
-
-};
-// =============================
-// PART 3 - EXTRA FEATURES
-// =============================
-
-
-// LEVEL SYSTEM
-
-let unlockedLevel =
-localStorage.getItem("unlockedLevel") || 1;
-
-
-function showGame(){
-
-document.getElementById("mainMenu").style.display="none";
-
-canvas.style.display="block";
-
-startGame();
-
-}
-
-
-
-
-function showLevels(){
-
-document.getElementById("mainMenu").style.display="none";
-
-document.getElementById("levelMap").style.display="block";
-
-
-let box=document.getElementById("levels");
-
-box.innerHTML="";
-
-
-for(let i=1;i<=100;i++){
-
-let btn=document.createElement("button");
-
-btn.innerHTML="LEVEL "+i;
-
-
-if(i<=unlockedLevel){
-
-btn.disabled=false;
-
-
-btn.onclick=function(){
-
-level=i;
-
-document.getElementById("levelMap").style.display="none";
-
-canvas.style.display="block";
-
-startGame();
-
-};
-
-
-}
-
-else{
-
-btn.disabled=true;
-
-btn.innerHTML="🔒 LEVEL "+i;
-
-}
-
-
-box.appendChild(btn);
-
-box.appendChild(document.createElement("br"));
-
-}
-
-}
-
-
-
-
-function backHome(){
-
-document.getElementById("levelMap").style.display="none";
-
-document.getElementById("settings").style.display="none";
-
-document.getElementById("mainMenu").style.display="block";
-
-
-canvas.style.display="none";
-
-}
-
-
-
-
-// SETTINGS
-
-
-function showSettings(){
-
-document.getElementById("mainMenu").style.display="none";
-
-document.getElementById("settings").style.display="block";
-
-
-document.getElementById("username").value=
-
-localStorage.getItem("username") || "";
-
-
-document.getElementById("ballColor").value=
-
-ballColor;
-
-
-document.getElementById("paddleColor").value=
-
-paddleColor;
-
-
-}
-
-
-
-
-
-function saveSettings(){
-
-
-localStorage.setItem(
-
-"username",
-
-document.getElementById("username").value
-
-);
-
-
-ballColor=
-
-document.getElementById("ballColor").value;
-
-
-paddleColor=
-
-document.getElementById("paddleColor").value;
-
-
-
-localStorage.setItem(
-"ballColor",
-ballColor
-);
-
-
-localStorage.setItem(
-"paddleColor",
-paddleColor
-);
-
-
-alert("Settings Saved");
-
-
-}
-
-
-
-
-// LOAD SETTINGS
-
-
-window.onload=function(){
-
-
-ballColor=
-
-localStorage.getItem("ballColor")
-||"yellow";
-
-
-paddleColor=
-
-localStorage.getItem("paddleColor")
-||"cyan";
-
-
-};
-
-
-
-
-
-// LEVEL COMPLETE MESSAGE
-
-
-function nextLevel(){
-
-
-if(level>=unlockedLevel){
-
-unlockedLevel=level+1;
-
-
-localStorage.setItem(
-
-"unlockedLevel",
-
-unlockedLevel
-
-);
-
-
-}
-
-
-running=false;
-
-
-
-alert(
-
-"You got it! 🎉\n\nLet's try next levels"
-
-);
-
-
-
-showLevels();
-
-
-}
-
-
-
-
-
-// SPACE BAR PLAY AGAIN
-
-
-document.addEventListener(
-
-"keydown",
-
-function(e){
-
-
-if(e.code==="Space"){
-
-
-if(!running){
-
-restartGame();
-
-}
-
-
-}
-
-
-});
-
-
-
-
-
-
-// FULLSCREEN
-
-
-function toggleFullscreen(){
-
-
-if(!document.fullscreenElement){
-
-
-document.documentElement.requestFullscreen();
-
-
-}
-
-else{
-
-
-document.exitFullscreen();
-
-
-}
-
-
-}
-
-
-
-
-
-// SOUND EFFECTS
-
-
-let hitSound=new Audio();
-
-hitSound.src=
-"https://actions.google.com/sounds/v1/cartoon/pop.ogg";
-
-
-
-let backgroundMusic=new Audio();
-
-backgroundMusic.src=
-"https://cdn.pixabay.com/audio/2022/03/15/audio_c8b2f8d7c6.mp3";
-
-
-backgroundMusic.loop=true;
-
-
-
-
-
-function playMusic(){
-
-
-let music=
-
-document.getElementById("music");
-
-
-if(music && music.checked){
-
-
-backgroundMusic.play();
-
-
-}
-
-
-}
-
-
-
-
-
-function stopMusic(){
-
-backgroundMusic.pause();
-
-}
-
-
-
-
-
-// ARROW BUTTON SOUND
-
-
-function arrowSound(){
-
-
-let sound=
-
-document.getElementById("sounds");
-
-
-if(sound && sound.checked){
-
-hitSound.play();
-
-}
-
-
-}
-
-
-
-document.getElementById("left").onclick=function(){
-
-paddle.x-=40;
-
-arrowSound();
-
-};
-
-
-
-document.getElementById("right").onclick=function(){
-
-paddle.x+=40;
-
-arrowSound();
-
-};
-
-
-
-
-
-// START MUSIC WHEN GAME STARTS
-
-
-let oldStart=startGame;
-
-
-startGame=function(){
-
-
-oldStart();
-
-
-playMusic();
-
-
-};
-
-
-
-
-// IMPROVED GAME OVER POSITION
-
-
-document.getElementById("gameOver").style.position="absolute";
-
-document.getElementById("gameOver").style.top="200px";
-
-document.getElementById("gameOver").style.left="40%";
-
-
-
-
-
-// SAVE HIGH SCORE BETTER
-
-
-setInterval(function(){
-
-
-if(score>highScore){
-
-
-highScore=score;
-
-
-localStorage.setItem(
-
-"highScore",
-
-highScore
-
-);
-
-
-}
-
-
-},1000);
+</html>
